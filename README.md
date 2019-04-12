@@ -8,3 +8,7 @@ Laboratory management for Mirae Hall
  - 기본 UI 제작
  - 기본 설정 읽기
  - 소켓 통신 틀 제작
+ - 소켓 통신 전반 수정
+ - Node에 따른 port번호 부여
+ - PowerOFF, SetIPAddress message 구현
+ - CustomMessage send 
