@@ -5,6 +5,8 @@
 #pragma once
 #include"CSocketListen.h"
 #include"CSocketClient.h"
+#include"CConnectSocket.h"
+#include"stdafx.h"
 // CLaboratoryManagementDlg 대화 상자
 class CLaboratoryManagementDlg : public CDialogEx
 {
@@ -33,10 +35,17 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	LRESULT OnTaryNotifyAction(WPARAM wParam, LPARAM lParam);
 public:
-	bool initSocket();
+	bool initSocket(int port);
+	IN_ADDR GetDefaultMyIP();
+	bool connectTo(std::string ip, int port);
 	struct IPLIST {
 		std::string ip;
 		bool connected;
+		int ipToPort() {
+			int a, b, c, d;
+			sscanf(ip.c_str(), "%d.%d.%d.%d", &a, &b, &c, &d);
+			return c*1000 + d;
+		}
 	};
 	int ipCnt;
 	int startIp[4];
@@ -52,6 +61,8 @@ public:
 	afx_msg void OnBnClickedHide();
 	afx_msg void OnExit();
 	CIPAddressCtrl m_ipControl;
-private:
+private:	
+	IPLIST myIP;
 	CSocketListen * m_pListenSocket;
+	CConnectSocket m_Socket;
 };

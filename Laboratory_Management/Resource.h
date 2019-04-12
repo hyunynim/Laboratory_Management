@@ -12,7 +12,6 @@
 #define IDC_COMPUTER_LIST               1000
 #define IDC_DEBUG                       1001
 #define IDC_HIDE                        1002
-#define IDC_IPADDRESS1                  1003
 #define IDC_IPADDRESS                   1003
 #define ID_1_2                          32774
 #define ID_1_3                          32775

@@ -40,8 +40,12 @@ void CLaboratoryManagementDlg::OnBnClickedDebug()
 	std::vector<int> selected = getSelected();
 
 	sprintf(msg, "Item 선택 개수: %d\n선택 item: ", cnt, m_ComputerList.GetSelectedColumn());
-	for (auto i : selected)
-		sprintf(msg, "%s%d, ", msg, i);
+	for (auto i : selected) {
+		std::string str = m_ComputerList.GetItemText(i, 1);
+		IPLIST ipTmp;
+		ipTmp.ip = str;
+		connectTo(ipTmp.ip, ipTmp.ipToPort());
+	}
 	MessageBox(msg);
 	;
 }
@@ -135,13 +139,13 @@ BOOL CLaboratoryManagementDlg::OnInitDialog()
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
-	BYTE ip[4];
-	m_ipControl.SetAddress(127, 0, 0, 1);
-	
+
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	//Socket Init
-	initSocket();
-
+	IN_ADDR addr = GetDefaultMyIP();
+	myIP.ip = inet_ntoa(addr);
+	sprintf(msg, "%s", inet_ntoa(addr));
+	initSocket(myIP.ipToPort());
 
 	CRect rt;
 	m_ComputerList.GetWindowRect(&rt);
@@ -304,14 +308,14 @@ void CLaboratoryManagementDlg::OnExit()
 	exit(0);
 }
 
-bool CLaboratoryManagementDlg::initSocket() {
+bool CLaboratoryManagementDlg::initSocket(int port) {
 	m_pListenSocket = new CSocketListen;
-	if (m_pListenSocket->Create(22309, SOCK_STREAM)) // 포트번호, TCP
+	if (m_pListenSocket->Create(port, SOCK_STREAM)) // 포트번호, TCP
 	{
 		if (!m_pListenSocket->Listen()) // 포트 충돌인지 검사
 		{
 			CString tmp;
-			tmp.Format("Socket을 Listen하는데에 실패했습니다\r\n다른 프로그램에서 [포트번호 : %d] 를 사용 중인지 확인해주세요.", 22039);
+			tmp.Format("Socket을 Listen하는데에 실패했습니다\r\n다른 프로그램에서 [포트번호 : %d] 를 사용 중인지 확인해주세요.", port);
 			return 0;
 		}
 	}
@@ -320,4 +324,35 @@ bool CLaboratoryManagementDlg::initSocket() {
 		return 0;
 	}
 	return 1;
+}
+
+bool CLaboratoryManagementDlg::connectTo(std::string ip, int port) {
+	m_Socket.Create();
+	UpdateData(TRUE);
+	int cnt = 0;
+	while (m_Socket.Connect(ip.c_str(), port) == FALSE)
+		if (cnt++ == 10)
+			return 0;// 서버 연결 실패하면 프로그램 종료한다.
+	return 1;
+}
+
+IN_ADDR CLaboratoryManagementDlg::GetDefaultMyIP() {
+	char localhostname[MAX_PATH];
+	IN_ADDR addr = { 0, };
+
+	if (gethostname(localhostname, MAX_PATH) == SOCKET_ERROR)//호스트 이름 얻어오기
+	{
+		return addr;
+	}
+	HOSTENT *ptr = gethostbyname(localhostname);//호스트 엔트리 얻어오기
+	while (ptr && ptr->h_name)
+	{
+		if (ptr->h_addrtype == PF_INET)//IPv4 주소 타입일 때
+		{
+			memcpy(&addr, ptr->h_addr_list[0], ptr->h_length);//메모리 복사
+			break;//반복문 탈출
+		}
+		ptr++;
+	}
+	return addr;
 }
