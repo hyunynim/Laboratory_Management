@@ -35,6 +35,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	LRESULT OnTaryNotifyAction(WPARAM wParam, LPARAM lParam);
 public:
+	int GetIpAddress(CString & strIP);
 	bool initSocket(int port);
 	IN_ADDR GetDefaultMyIP();
 	bool connectTo(std::string ip, int port);
@@ -64,5 +65,5 @@ public:
 private:	
 	IPLIST myIP;
 	CSocketListen * m_pListenSocket;
-	CConnectSocket m_Socket;
+	std::vector<CConnectSocket *> connected;
 };

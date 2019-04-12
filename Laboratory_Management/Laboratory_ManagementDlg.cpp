@@ -13,6 +13,8 @@
 
 #define WM_TRAY_NOTIFYICATION WM_APP+10
 #define TRAY_BALLOON 1
+
+const int maxConnectTry = 1;
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
 class CAboutDlg : public CDialogEx
@@ -143,10 +145,15 @@ BOOL CLaboratoryManagementDlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	//Socket Init
 	IN_ADDR addr = GetDefaultMyIP();
-	myIP.ip = inet_ntoa(addr);
+	CString tmp;
+	GetIpAddress(tmp);
+	myIP.ip = tmp;
 	sprintf(msg, "%s", inet_ntoa(addr));
-	initSocket(myIP.ipToPort());
-
+//	if (initSocket(myIP.ipToPort()));
+//	else
+		MessageBox("Socket init Fail!");
+	sprintf(msg, "IP: %s(port: %d) Socket Opened", myIP.ip.c_str(), myIP.ipToPort());
+	MessageBox(msg);
 	CRect rt;
 	m_ComputerList.GetWindowRect(&rt);
 	m_ComputerList.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
@@ -316,6 +323,7 @@ bool CLaboratoryManagementDlg::initSocket(int port) {
 		{
 			CString tmp;
 			tmp.Format("Socket을 Listen하는데에 실패했습니다\r\n다른 프로그램에서 [포트번호 : %d] 를 사용 중인지 확인해주세요.", port);
+			AfxMessageBox(tmp);
 			return 0;
 		}
 	}
@@ -327,12 +335,13 @@ bool CLaboratoryManagementDlg::initSocket(int port) {
 }
 
 bool CLaboratoryManagementDlg::connectTo(std::string ip, int port) {
-	m_Socket.Create();
-	UpdateData(TRUE);
+	CConnectSocket * pSocket = new CConnectSocket;
+	pSocket->Create();
 	int cnt = 0;
-	while (m_Socket.Connect(ip.c_str(), port) == FALSE)
-		if (cnt++ == 10)
+	while (pSocket->Connect(ip.c_str(), port) == FALSE)
+		if (cnt++ == maxConnectTry)
 			return 0;// 서버 연결 실패하면 프로그램 종료한다.
+	connected.push_back(pSocket);
 	return 1;
 }
 
@@ -355,4 +364,47 @@ IN_ADDR CLaboratoryManagementDlg::GetDefaultMyIP() {
 		ptr++;
 	}
 	return addr;
+}
+int CLaboratoryManagementDlg::GetIpAddress(CString & strIP)
+{
+	WSADATA WsaData;
+
+	if (WSAStartup(0x202, &WsaData) == SOCKET_ERROR) //소켓초기화
+		return false;
+
+	char myaddr[256];
+	PHOSTENT pHostInfo;
+	struct sockaddr_in addr;
+
+	//궁극적으로 ip정보가 저장될 곳
+	CArray<sockaddr_in, sockaddr_in&> myIPArray;
+	CString msgIP("");
+
+	//로컬pc의 호스트이름을 표준양식으로받아옴(MSDN)
+	gethostname(myaddr, sizeof(myaddr));
+
+	//호스트이름에 대응되는Databas를 PHOSTENT구조체로 리턴
+	pHostInfo = gethostbyname(myaddr);
+
+	if (pHostInfo)//호스트데이터베이스에서ip만카피
+	{
+		for (int i = 0; pHostInfo->h_addr_list[i] != NULL; i++)
+		{
+			memcpy(&addr.sin_addr, pHostInfo->h_addr_list[i],
+				pHostInfo->h_length);
+			myIPArray.Add(addr);
+		}
+	}
+
+	for (int i = 0; i < myIPArray.GetSize(); i++)//단순히 배열작업
+	{
+		msgIP = inet_ntoa(myIPArray.GetAt(i).sin_addr);
+		if (msgIP.Find("10.10.") != -1) {
+			strIP = msgIP;
+			return 1;
+		}
+	}
+
+	AfxMessageBox(msgIP);
+	return 0;
 }
