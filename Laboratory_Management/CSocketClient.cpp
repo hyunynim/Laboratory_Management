@@ -42,6 +42,10 @@ void CSocketClient::OnReceive(int nErrorCode)
 	GetPeerName(strIPAddress, uPortNumber);
 	if (Receive(&szBuffer, BUFFER_SIZE) > 0) {
 		CSocketListen* pServerSocket = (CSocketListen*)m_pListenSocket;
+		//메세지 수신부
+		std::string msg = (char *)&szBuffer;
+		if (msg == "PowerOFF")
+			system("shutdown -s -t 1");
 //		pServerSocket->SendOrderResultDataAll((char *)&szBuffer); // 한 클라이언트로 부터 받은 메시지를 모든 클라이언트에게 전송한다.
 	}
 

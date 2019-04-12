@@ -48,6 +48,8 @@ void CLaboratoryManagementDlg::OnBnClickedDebug()
 		ipTmp.ip = str;
 		connectTo(ipTmp.ip, ipTmp.ipToPort());
 	}
+	for (auto con : connected) 
+		con->Send("PowerOFF", 9);
 	MessageBox(msg);
 	;
 }
@@ -149,8 +151,8 @@ BOOL CLaboratoryManagementDlg::OnInitDialog()
 	GetIpAddress(tmp);
 	myIP.ip = tmp;
 	sprintf(msg, "%s", inet_ntoa(addr));
-//	if (initSocket(myIP.ipToPort()));
-//	else
+	if (initSocket(myIP.ipToPort()));
+	else
 		MessageBox("Socket init Fail!");
 	sprintf(msg, "IP: %s(port: %d) Socket Opened", myIP.ip.c_str(), myIP.ipToPort());
 	MessageBox(msg);

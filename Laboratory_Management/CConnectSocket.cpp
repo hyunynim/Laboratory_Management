@@ -32,7 +32,7 @@ void CConnectSocket::OnReceive(int nErrorCode)
 		else {
 			string str = szBuffer;
 			//수신
-			//m_Chat.AddString(str.c_str());
+			AfxMessageBox(str.c_str());
 		}
 	}
 
@@ -45,6 +45,6 @@ void CConnectSocket::OnClose(int nErrorCode)
 	ShutDown();
 	Close();
 	CSocket::OnClose(nErrorCode);
-	AfxMessageBox("서버와 연결이 종료되었습니다.");
+	//AfxMessageBox("서버와 연결이 종료되었습니다.");
 	::PostQuitMessage(0);
 }
