@@ -31,8 +31,6 @@ void CConnectSocket::OnReceive(int nErrorCode)
 		if (strlen(szBuffer) > BUFFER_SIZE);
 		else {
 			string str = szBuffer;
-			//¼ö½Å
-			AfxMessageBox(str.c_str());
 		}
 	}
 

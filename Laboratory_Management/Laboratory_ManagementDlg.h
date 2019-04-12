@@ -62,8 +62,12 @@ public:
 	afx_msg void OnBnClickedHide();
 	afx_msg void OnExit();
 	CIPAddressCtrl m_ipControl;
+	IPLIST getMyIP() { return myIP; }
 private:	
 	IPLIST myIP;
 	CSocketListen * m_pListenSocket;
 	std::vector<CConnectSocket *> connected;
+public:
+	CString m_CustomMsg;
+	afx_msg void OnBnClickedMsgsend();
 };

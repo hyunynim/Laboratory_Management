@@ -50,6 +50,7 @@ void CLaboratoryManagementDlg::OnBnClickedDebug()
 	}
 	for (auto con : connected) 
 		con->Send("PowerOFF", 9);
+	connected.clear();
 	MessageBox(msg);
 	;
 }
@@ -89,6 +90,7 @@ END_MESSAGE_MAP()
 
 CLaboratoryManagementDlg::CLaboratoryManagementDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_LABORATORY_MANAGEMENT_DIALOG, pParent)
+	, m_CustomMsg(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -97,7 +99,7 @@ void CLaboratoryManagementDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMPUTER_LIST, m_ComputerList);
-	DDX_Control(pDX, IDC_IPADDRESS, m_ipControl);
+	DDX_Text(pDX, IDC_CUSTOMMSG, m_CustomMsg);
 }
 
 BEGIN_MESSAGE_MAP(CLaboratoryManagementDlg, CDialogEx)
@@ -110,6 +112,7 @@ BEGIN_MESSAGE_MAP(CLaboratoryManagementDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_HIDE, &CLaboratoryManagementDlg::OnBnClickedHide)
 	ON_MESSAGE(WM_TRAY_NOTIFYICATION, OnTaryNotifyAction)
 	ON_COMMAND(ID_EXIT, &CLaboratoryManagementDlg::OnExit)
+	ON_BN_CLICKED(IDC_MSGSEND, &CLaboratoryManagementDlg::OnBnClickedMsgsend)
 END_MESSAGE_MAP()
 
 
@@ -409,4 +412,26 @@ int CLaboratoryManagementDlg::GetIpAddress(CString & strIP)
 
 	AfxMessageBox(msgIP);
 	return 0;
+}
+
+void CLaboratoryManagementDlg::OnBnClickedMsgsend()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+	int cnt = m_ComputerList.GetSelectedCount();
+	std::vector<int> selected = getSelected();
+
+	for (auto i : selected) {
+		std::string str = m_ComputerList.GetItemText(i, 1);
+		IPLIST ipTmp;
+		ipTmp.ip = str;
+		connectTo(ipTmp.ip, ipTmp.ipToPort());
+	}
+	for (auto con : connected) {
+		std::string msg = m_CustomMsg;
+		con->Send(msg.c_str(), msg.size());
+		con->Close();
+	}
+	connected.clear();
+	
 }

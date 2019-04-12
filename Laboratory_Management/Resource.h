@@ -12,7 +12,9 @@
 #define IDC_COMPUTER_LIST               1000
 #define IDC_DEBUG                       1001
 #define IDC_HIDE                        1002
-#define IDC_IPADDRESS                   1003
+#define IDC_EDIT1                       1004
+#define IDC_CUSTOMMSG                   1004
+#define IDC_MSGSEND                     1005
 #define ID_1_2                          32774
 #define ID_1_3                          32775
 #define ID_1_4                          32776
@@ -24,7 +26,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
