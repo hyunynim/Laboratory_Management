@@ -3,6 +3,11 @@ Laboratory management for Mirae Hall
 
 이 프로그램은 미래관 실습실 관리를 위해 만들어졌습니다.
 
+# 예정사항
+ - 파일 송수신
+ - WOL
+ - 강의 중 도움이 되는 기능
+ - 기타
 
 # 2019.04.12
  - 기본 UI 제작
