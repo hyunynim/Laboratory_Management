@@ -30,10 +30,13 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CServerSocket.h">
+    <ClInclude Include="CConnectSocket.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CClientSocket.h">
+    <ClInclude Include="CSocketClient.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CSocketListen.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,10 +50,13 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CServerSocket.cpp">
+    <ClCompile Include="CConnectSocket.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CClientSocket.cpp">
+    <ClCompile Include="CSocketClient.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSocketListen.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -60,6 +60,7 @@ bool CLaboratoryManagementDlg::getSettings() {
 		if (str == "IpCount")
 			fscanf(fp, "%d", &ipCnt);
 	}
+	return 1;
 }
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 {
@@ -88,6 +89,7 @@ void CLaboratoryManagementDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMPUTER_LIST, m_ComputerList);
+	DDX_Control(pDX, IDC_IPADDRESS, m_ipControl);
 }
 
 BEGIN_MESSAGE_MAP(CLaboratoryManagementDlg, CDialogEx)
@@ -133,8 +135,14 @@ BOOL CLaboratoryManagementDlg::OnInitDialog()
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
-
+	BYTE ip[4];
+	m_ipControl.SetAddress(127, 0, 0, 1);
+	
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	//Socket Init
+	initSocket();
+
+
 	CRect rt;
 	m_ComputerList.GetWindowRect(&rt);
 	m_ComputerList.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
@@ -294,4 +302,22 @@ void CLaboratoryManagementDlg::OnExit()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	exit(0);
+}
+
+bool CLaboratoryManagementDlg::initSocket() {
+	m_pListenSocket = new CSocketListen;
+	if (m_pListenSocket->Create(22309, SOCK_STREAM)) // 포트번호, TCP
+	{
+		if (!m_pListenSocket->Listen()) // 포트 충돌인지 검사
+		{
+			CString tmp;
+			tmp.Format("Socket을 Listen하는데에 실패했습니다\r\n다른 프로그램에서 [포트번호 : %d] 를 사용 중인지 확인해주세요.", 22039);
+			return 0;
+		}
+	}
+	else {
+		AfxMessageBox("소켓 생성 실패");
+		return 0;
+	}
+	return 1;
 }

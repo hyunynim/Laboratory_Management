@@ -179,8 +179,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CClientSocket.h" />
-    <ClInclude Include="CServerSocket.h" />
+    <ClInclude Include="CConnectSocket.h" />
+    <ClInclude Include="CSocketClient.h" />
+    <ClInclude Include="CSocketListen.h" />
     <ClInclude Include="Laboratory_Management.h" />
     <ClInclude Include="Laboratory_ManagementDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -188,8 +189,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CClientSocket.cpp" />
-    <ClCompile Include="CServerSocket.cpp" />
+    <ClCompile Include="CConnectSocket.cpp" />
+    <ClCompile Include="CSocketClient.cpp" />
+    <ClCompile Include="CSocketListen.cpp" />
     <ClCompile Include="Laboratory_Management.cpp" />
     <ClCompile Include="Laboratory_ManagementDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -3,8 +3,8 @@
 //
 
 #pragma once
-
-
+#include"CSocketListen.h"
+#include"CSocketClient.h"
 // CLaboratoryManagementDlg 대화 상자
 class CLaboratoryManagementDlg : public CDialogEx
 {
@@ -33,6 +33,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	LRESULT OnTaryNotifyAction(WPARAM wParam, LPARAM lParam);
 public:
+	bool initSocket();
 	struct IPLIST {
 		std::string ip;
 		bool connected;
@@ -50,4 +51,7 @@ public:
 	afx_msg void OnDblclkComputerList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedHide();
 	afx_msg void OnExit();
+	CIPAddressCtrl m_ipControl;
+private:
+	CSocketListen * m_pListenSocket;
 };
