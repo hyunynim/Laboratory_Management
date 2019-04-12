@@ -11,7 +11,8 @@
 #define new DEBUG_NEW
 #endif
 
-
+#define WM_TRAY_NOTIFYICATION WM_APP+10
+#define TRAY_BALLOON 1
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
 class CAboutDlg : public CDialogEx
@@ -32,6 +33,34 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
+void CLaboratoryManagementDlg::OnBnClickedDebug()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int cnt = m_ComputerList.GetSelectedCount();
+	std::vector<int> selected = getSelected();
+
+	sprintf(msg, "Item 선택 개수: %d\n선택 item: ", cnt, m_ComputerList.GetSelectedColumn());
+	for (auto i : selected)
+		sprintf(msg, "%s%d, ", msg, i);
+	MessageBox(msg);
+	;
+}
+bool CLaboratoryManagementDlg::getSettings() {
+	FILE * fp = fopen("setting.txt", "r");
+	if (fp == NULL)
+		return 0;
+	std::string str;
+	char msg[1234];
+	while (~fscanf(fp, "%s", msg)) {
+		str = msg;
+		if (str == "StartIP") {
+			fscanf(fp, "%s", msg);
+			sscanf(msg, "%d.%d.%d.%d", &startIp[0], &startIp[1], &startIp[2], &startIp[3]);
+		}
+		if (str == "IpCount")
+			fscanf(fp, "%d", &ipCnt);
+	}
+}
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 {
 }
@@ -58,12 +87,19 @@ CLaboratoryManagementDlg::CLaboratoryManagementDlg(CWnd* pParent /*=nullptr*/)
 void CLaboratoryManagementDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMPUTER_LIST, m_ComputerList);
 }
 
 BEGIN_MESSAGE_MAP(CLaboratoryManagementDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_DEBUG, &CLaboratoryManagementDlg::OnBnClickedDebug)
+	ON_NOTIFY(NM_CLICK, IDC_COMPUTER_LIST, &CLaboratoryManagementDlg::OnClickComputerList)
+	ON_NOTIFY(NM_DBLCLK, IDC_COMPUTER_LIST, &CLaboratoryManagementDlg::OnDblclkComputerList)
+	ON_BN_CLICKED(IDC_HIDE, &CLaboratoryManagementDlg::OnBnClickedHide)
+	ON_MESSAGE(WM_TRAY_NOTIFYICATION, OnTaryNotifyAction)
+	ON_COMMAND(ID_EXIT, &CLaboratoryManagementDlg::OnExit)
 END_MESSAGE_MAP()
 
 
@@ -99,7 +135,31 @@ BOOL CLaboratoryManagementDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-
+	CRect rt;
+	m_ComputerList.GetWindowRect(&rt);
+	m_ComputerList.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
+	m_ComputerList.InsertColumn(0, "번호", LVCFMT_LEFT, rt.Width() * 0.15);
+	m_ComputerList.InsertColumn(1, "IP", LVCFMT_LEFT, rt.Width() * 0.55);
+	m_ComputerList.InsertColumn(2, "연결상태", LVCFMT_LEFT, rt.Width() * 0.3);
+	if (!getSettings()) {
+		MessageBox("Setting.txt 파일이 없습니다");
+		exit(0);
+	}
+	for (int i = 0; i < ipCnt; ++i) {
+		sprintf(msg, "%d", i + 1);
+		m_ComputerList.InsertItem(i, msg);
+		sprintf(msg, "%d.%d.%d.%d", startIp[0], startIp[1], startIp[2], startIp[3]);
+		++startIp[3];
+		int carry = 0;
+		for (int i = 3; i >= 0; --i) {
+			startIp[i] += carry;
+			carry = startIp[i] / 256;
+			startIp[i] %= 256;
+		}
+		ipList.push_back({ msg, 0 });
+		m_ComputerList.SetItem(i, 1, LVIF_TEXT, msg, 0, 0, 0, 0);
+		m_ComputerList.SetItem(i, 2, LVIF_TEXT, "연결대기", 0, 0, 0, 0);
+	}
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -152,3 +212,86 @@ HCURSOR CLaboratoryManagementDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+//현재 선택한 item의 index를 받아옴
+std::vector<int> CLaboratoryManagementDlg::getSelected() {
+	POSITION pos = m_ComputerList.GetFirstSelectedItemPosition();
+	std::vector<int> selected;
+	while (pos)
+		selected.push_back(m_ComputerList.GetNextSelectedItem(pos));
+	return selected;
+}
+
+//list Item 클릭 시
+void CLaboratoryManagementDlg::OnClickComputerList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	NM_LISTVIEW* comList = (NM_LISTVIEW*)pNMHDR;
+	*pResult = 0;
+}
+
+//list Item 더블 클릭 시
+void CLaboratoryManagementDlg::OnDblclkComputerList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int sel = getSelected()[0];
+	std::string ip = m_ComputerList.GetItemText(sel, 1);
+	sprintf(msg, "선택한 item index: %d(ip: %s)", sel, ip.c_str());
+	MessageBox(msg);
+	*pResult = 0;
+}
+
+
+void CLaboratoryManagementDlg::OnBnClickedHide()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	NOTIFYICONDATA nid;
+	ZeroMemory(&nid, sizeof(nid));
+
+	nid.cbSize = sizeof(NOTIFYICONDATA);
+	nid.uID = 0;
+	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+	nid.hWnd = m_hWnd;
+	nid.hIcon = AfxGetApp()->LoadIconA(IDR_MAINFRAME);
+
+	nid.uCallbackMessage = WM_TRAY_NOTIFYICATION;
+	lstrcpy(nid.szTip, "Labaratory Management");
+
+	::Shell_NotifyIcon(NIM_ADD, &nid);
+	SetTimer(TRAY_BALLOON, 1000 * 60, 0);
+	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
+}
+
+LRESULT CLaboratoryManagementDlg::OnTaryNotifyAction(WPARAM wParam, LPARAM lParam) {
+	switch (lParam) {
+	case WM_RBUTTONDOWN:{
+		CPoint pos;
+		::GetCursorPos(&pos);
+		CMenu menu;
+		menu.LoadMenuA(IDR_MENU1);
+		CMenu *pMenu = menu.GetSubMenu(0);
+		pMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pos.x, pos.y, AfxGetMainWnd());
+	}
+		break;
+	case WM_LBUTTONDBLCLK: {
+		NOTIFYICONDATA nid;
+		ZeroMemory(&nid, sizeof(nid));
+		nid.cbSize = sizeof(NOTIFYICONDATA);
+		nid.uID = 0;
+		nid.hWnd = GetSafeHwnd();
+
+		BOOL ret = ::Shell_NotifyIcon(NIM_DELETE, &nid);
+		AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+		KillTimer(TRAY_BALLOON);
+	}
+		break;
+	}
+	return 1;
+}
+
+void CLaboratoryManagementDlg::OnExit()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	exit(0);
+}

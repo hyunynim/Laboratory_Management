@@ -31,4 +31,23 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+	LRESULT OnTaryNotifyAction(WPARAM wParam, LPARAM lParam);
+public:
+	struct IPLIST {
+		std::string ip;
+		bool connected;
+	};
+	int ipCnt;
+	int startIp[4];
+	std::vector<int> getSelected();
+	std::vector<IPLIST> ipList;
+	bool getSettings();
+	char msg[1010];
+	std::set<int> selected;
+	CListCtrl m_ComputerList;
+	afx_msg void OnBnClickedDebug();
+	afx_msg void OnClickComputerList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDblclkComputerList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedHide();
+	afx_msg void OnExit();
 };
