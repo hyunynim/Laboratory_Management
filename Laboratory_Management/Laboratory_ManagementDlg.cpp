@@ -256,7 +256,7 @@ void CLaboratoryManagementDlg::OnBnClickedHide()
 	nid.hIcon = AfxGetApp()->LoadIconA(IDR_MAINFRAME);
 
 	nid.uCallbackMessage = WM_TRAY_NOTIFYICATION;
-	lstrcpy(nid.szTip, "Labaratory Management");
+	lstrcpy(nid.szTip, "Laboratory Management");
 
 	::Shell_NotifyIcon(NIM_ADD, &nid);
 	SetTimer(TRAY_BALLOON, 1000 * 60, 0);
